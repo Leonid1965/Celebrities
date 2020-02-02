@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Celebrities</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+
+    <link rel='stylesheet' href='/css/portfolio.css' />
+
+
+    <style>
+
+        .detail {
+            margin-bottom: 0.2rem;
+            width: 100%;
+            padding-left: 2.5rem;
+            color: black;
+            display: flex;
+        }
+
+        .fav {
+            width: 35%;
+            padding-top: 0.6rem;
+        }
+
+        .sdata {
+            width: 65%;
+            font-size: large;
+        }
+
+        .titem {
+            padding-left: 0rem;
+        }
+
+        .tlab {
+            margin-left: 0.2rem;
+            margin-right: 0.5rem;
+            font-weight: bold;
+            color: #6a6b6c;
+        }
+
+        h4 {
+            background-color: #fdf9f6;
+        }
+
+        .slinks a, li>a {
+            color: #3c8dbc;
+            text-decoration: none;
+        }
+
+            .slinks a:hover, li > a:hover, .slinks a:active, li > a:active, .slinks a:focus, li>a:focus {
+                outline: none;
+                text-decoration: none;
+                color: #72afd2;
+            }
+
+            .slinks a:focus, li>a:focus {
+                outline: thin dotted;
+                outline: 5px auto -webkit-focus-ring-color;
+                outline-offset: -2px;
+            }
+
+            .slinks a:focus, li > a:focus, .slinks a:hover, li>a:hover {
+                color: #1da3d3;
+            }
+
+            .button{
+                font-size: medium;
+            }
+
+
+        #addPortfolio {
+            max-width: 250px;
+            margin-top: 1rem;
+            position: fixed;
+            margin-top: 10px;
+            background-color: transparent;
+            box-shadow: 2px 2px 2px 4px rgba(128, 128, 128, 0.05);
+        }
+
+        .flcolcenter {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .lnkFont {
+            font-size: small;
+        }
+
+        #showbox {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 100px;
+            margin-left: 1rem;
+        }
+}
+
+    </style>
+</head>
+<body class="flcolcenter">
+    <div class="row1">
+        <div id="addPortfolio" class="box fitem2">
+            <h2 style="margin-left:-3rem;">Celebrities</h2>
+            <div class="slinks" style="margin-left:-3rem;"><a id="favorites" href="javascript:Reset()">Reset</a></div>
+        </div>
+    </div>
+
+    <div class="flcolcenter">
+        <div id="showbox">
+            <div class="row1">
+                <div class="box fitem2">
+                    <h4>nameParam</h4>
+                    <div style="margin-top:1rem;"></div>
+                    <div>
+                        <img alt="nameParam" src="imageLinkParam" width="140" height="209">
+                        <div class="flcolcenter">
+                            <p>
+                                text3Param
+                            </p>
+                            <div class="slinks flcolcenter lnkFont">
+                                <a href="javascript:RemoveFromCelebrities('idParam')">Remove</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        "use strict";
+        var showbox = document.getElementById("showbox");
+        var template = showbox.children[0].innerHTML;
+
+        function showCelebrities(celebrities) {
+
+            var htmlTemplate = null;
+            var htmlOut = "";
+            var celebrity = null;
+
+            for (var i = 0; i < celebrities.length; i++) {
+                celebrity = celebrities[i];
+                htmlTemplate = template;
+
+                htmlTemplate = htmlTemplate.replace((new RegExp("idParam")), celebrity.id);
+                htmlTemplate = htmlTemplate.replace((new RegExp("nameParam", 'g')), `${i+1}. ${celebrity.name}`);
+                htmlTemplate = htmlTemplate.replace((new RegExp("imageLinkParam")), celebrity.imageUrl);
+                if (celebrity.birthday != null)
+                    htmlTemplate = htmlTemplate.replace((new RegExp("text3Param")), `${celebrity.profession}, ${(new Date()).getFullYear() - (new Date(celebrity.birthday)).getFullYear()}, ${celebrity.gender}`);
+                else
+                    htmlTemplate = htmlTemplate.replace((new RegExp("text3Param")), `${celebrity.profession}, ${celebrity.gender}`);
+
+                htmlOut = htmlOut + htmlTemplate + "\n";
+            }
+            showbox.innerHTML = htmlOut;
+        }
+
+
+        async function RemoveFromCelebrities(id) {
+
+            var response = await fetch('/celebrity/delete?id=' + id, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                var celebrities = await response.json();
+                if (!(celebrities == null || celebrities.length == 0)) {
+                    showCelebrities(celebrities);
+                }
+                else
+                    console.log("server error");
+            } else
+                console.log("server error");
+        }
+
+
+        async function getAllCelebrities() {
+            var response = await fetch(`/celebrity/all`, {
+                method: 'GET',
+            });
+
+            if (response.ok) {
+                var celebrities = await response.json();
+                if (!(celebrities == null || celebrities.length == 0)) {
+                    showCelebrities(celebrities);
+                }
+                else
+                    console.log("server error");
+            } else
+                console.log("server error");
+
+        }
+
+
+        async function Reset() {
+            var response = await fetch(`/celebrity/reset`, {
+                method: 'GET',
+            });
+
+            if (response.ok) {
+                var celebrities = await response.json();
+                if (!(celebrities == null || celebrities.length == 0)) {
+                    showCelebrities(celebrities);
+                }
+                else
+                    console.log("server error");
+            } else
+                console.log("server error");
+
+        }
+
+
+        getAllCelebrities();
+
+
+    </script>
+
+</body>
+</html >
